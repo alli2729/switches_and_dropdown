@@ -1,0 +1,18 @@
+import 'package:flutter/material.dart';
+import 'package:tamrin_app/pages/search.dart';
+import 'pages/switches.dart';
+
+void main() => runApp(const MainApp());
+
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      debugShowCheckedModeBanner: false,
+      // home: Switches(),
+      home: Search(),
+    );
+  }
+}

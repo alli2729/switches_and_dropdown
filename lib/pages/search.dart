@@ -8,14 +8,17 @@ class Search extends StatefulWidget {
 }
 
 class _SearchState extends State<Search> {
+  // create an empty list for dropdown items
   var items = []
       .map(
         (val) => DropdownMenuItem<String>(value: val, child: Text(val)),
       )
       .toList();
 
+  // create controller fo textfield and key for form
   final _controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  // value is for DropDownMenu
   String? value;
 
   @override
@@ -34,7 +37,7 @@ class _SearchState extends State<Search> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _textField(),
-            _addButton(),
+            _buttons(),
             _dropDown(),
           ],
         ),
@@ -42,40 +45,51 @@ class _SearchState extends State<Search> {
     );
   }
 
+  //* WIDGETS------------------------------------------
+
   Widget _textField() {
     return TextFormField(
       validator: _validator,
       controller: _controller,
+      decoration: const InputDecoration(
+        hintText: 'Type Somthing',
+        label: Text('Input'),
+        border: OutlineInputBorder(),
+      ),
     );
   }
 
-  String? _validator(value) {
-    if (value == null || value.isEmpty) {
-      return 'Required';
-    }
-    return null;
-  }
-
-  Widget _addButton() {
-    return IconButton(
-        onPressed: () => _addToList(_controller.text),
-        icon: const Icon(Icons.add));
+  Widget _buttons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+            onPressed: () => _addToList(_controller.text),
+            icon: const Icon(Icons.add_circle_outline)),
+        IconButton(
+            onPressed: () => _removeFromList(_controller.text),
+            icon: const Icon(Icons.remove_circle_outline)),
+      ],
+    );
   }
 
   Widget _dropDown() {
     return DropdownButton<String>(
-        hint: const Text('Its Empty !'),
+        hint:
+            (items.isEmpty) ? const Text('Its Empty !') : const Text('Select'),
         value: value,
         items: items,
         onChanged: (v) => setState(() => value = v));
   }
 
+  //* METHODS------------------------------------------
+
   void _addToList(String input) {
     // validate
     if (_formKey.currentState?.validate() ?? false) {
-      // checking if there is duplicate
+      // checking if there is 'input' in the list
       if (items.any(
-        (item) => item.value!.contains(input.trim()),
+        (item) => item.value! == input.trim(),
       )) {
         _showDuplicateDialog(input);
       } else {
@@ -89,10 +103,28 @@ class _SearchState extends State<Search> {
     }
   }
 
+  void _removeFromList(String input) {
+    // validate
+    if (_formKey.currentState?.validate() ?? false) {
+      // if there is a match in list
+      if (items.any((item) => item.value == input)) {
+        // remove item from list
+        setState(() {
+          items.removeWhere((item) => item.value == input);
+          _controller.clear();
+        });
+      } else {
+        // say there is no match for 'input'
+        _showNoMatchSnackBar(input);
+      }
+    }
+  }
+
   Future<dynamic> _showDuplicateDialog(String value) {
+    // showing dialog if there is duplicate in list
     return showDialog(
       context: context,
-      builder: (context) {
+      builder: (_) {
         return Dialog(
           child: Container(
             alignment: Alignment.center,
@@ -102,10 +134,27 @@ class _SearchState extends State<Search> {
               color: Colors.grey,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Text('$value is Duplicate'),
+            child: Text(
+              '"$value" is already in the list',
+              style: const TextStyle(fontSize: 20, color: Colors.white),
+            ),
           ),
         );
       },
     );
+  }
+
+  void _showNoMatchSnackBar(String value) {
+    // showing snackBar in bottom of screen
+    final snackBar = SnackBar(content: Text('"$value" is not in the list'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  String? _validator(value) {
+    // not allowing user to pass empty input
+    if (value == null || value.isEmpty) {
+      return 'Input is required !';
+    }
+    return null;
   }
 }

@@ -1,20 +1,19 @@
+/*
+  Ali Karimi
+*/
 import 'package:flutter/material.dart';
 
-class Search extends StatefulWidget {
-  const Search({super.key});
+class MyDropDown extends StatefulWidget {
+  const MyDropDown({super.key});
 
   @override
-  State<Search> createState() => _SearchState();
+  State<MyDropDown> createState() => _MyDropDownState();
 }
 
-class _SearchState extends State<Search> {
-  // create an empty list for dropdown items
-  // var items = []
-  //     .map(
-  //       (val) => DropdownMenuItem<String>(value: val, child: Text(val)),
-  //     )
-  //     .toList();
-
+class _MyDropDownState extends State<MyDropDown> {
+  // list of strings
+  List<String> stringItems = [];
+  // list of dropdown items : will initialize later
   List<DropdownMenuItem<String>> items = [];
 
   // create controller fo textfield and key for form
@@ -26,6 +25,8 @@ class _SearchState extends State<Search> {
 
   @override
   Widget build(BuildContext context) {
+    // before biulding page : change list of string to list of dropdown items
+    _itemsToDropDown();
     return Scaffold(
       body: _body(),
     );
@@ -50,7 +51,7 @@ class _SearchState extends State<Search> {
     );
   }
 
-  //* WIDGETS------------------------------------------
+  //* WIDGETS------------------------------------------------------------------
 
   Widget _addTextField() {
     return TextFormField(
@@ -66,7 +67,7 @@ class _SearchState extends State<Search> {
 
   Widget _editTextField() {
     return TextFormField(
-      // validator: _validator,
+      enabled: (isSelected()),
       controller: _editController,
       decoration: const InputDecoration(
         hintText: 'Type Somthing',
@@ -81,13 +82,16 @@ class _SearchState extends State<Search> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
+            tooltip: 'Add',
             onPressed: () => _addToList(_addController.text),
             icon: const Icon(Icons.add_circle_outline)),
         IconButton(
+            tooltip: 'Remove',
             onPressed: () => _removeFromList(_addController.text),
             icon: const Icon(Icons.remove_circle_outline)),
         IconButton(
-            onPressed: () => _editList(value!),
+            tooltip: 'Edit',
+            onPressed: (isSelected()) ? () => _editList(value!) : null,
             icon: const Icon(Icons.edit_outlined)),
       ],
     );
@@ -95,7 +99,9 @@ class _SearchState extends State<Search> {
 
   Widget _dropDown() {
     return DropdownButton<String>(
-      hint: (items.isEmpty) ? const Text('Its Empty !') : const Text('Select'),
+      hint: (stringItems.isEmpty)
+          ? const Text('Its Empty !')
+          : const Text('Select'),
       value: value,
       items: items,
       onChanged: (v) => setState(
@@ -107,20 +113,18 @@ class _SearchState extends State<Search> {
     );
   }
 
-  //* METHODS------------------------------------------
+  //* METHODS------------------------------------------------------------------
 
   void _addToList(String input) {
     // validate
     if (_formKey.currentState?.validate() ?? false) {
       // checking if there is 'input' in the list
-      if (items.any(
-        (item) => item.value! == input.trim(),
-      )) {
+      if (stringItems.any((item) => item == input.trim())) {
         _showDuplicateDialog(input);
       } else {
         setState(() {
           // add input to list
-          items.add(DropdownMenuItem(value: input, child: Text(input)));
+          stringItems.add(input);
           // clear the text field
           _addController.clear();
         });
@@ -132,11 +136,16 @@ class _SearchState extends State<Search> {
     // validate
     if (_formKey.currentState?.validate() ?? false) {
       // if there is a match in list
-      if (items.any((item) => item.value == input)) {
+      if (stringItems.any((item) => item == input)) {
         // remove item from list
         setState(() {
-          items.removeWhere((item) => item.value == input);
+          // removing item
+          stringItems.removeWhere((item) => item == input);
+          // set value to null
+          value = null;
+          // clear both controllers
           _addController.clear();
+          _editController.clear();
         });
       } else {
         // say there is no match for 'input'
@@ -145,14 +154,26 @@ class _SearchState extends State<Search> {
     }
   }
 
-  void _editList(String value) {
-    // edit selected item from list
-    setState(() {
-      int index = items.indexWhere((item) => item.value == value);
-      items[index] = DropdownMenuItem(
-          value: _editController.text, child: Text(_editController.text));
-      _editController.clear();
-    });
+  void _editList(String input) {
+    // if field is empty
+    if (_editController.text.isEmpty) {
+      _showNoEmptySnackBar();
+    } else
+    // if there is duplicate in list
+    if (stringItems.any((e) => e == _editController.text)) {
+      _showDuplicateDialog(_editController.text);
+    } else {
+      setState(() {
+        // finding index of input string
+        int index = stringItems.indexWhere((item) => item == input);
+        // change value to input
+        stringItems[index] = _editController.text;
+        // set value to chosen item
+        value = stringItems[index];
+        // clear controller
+        _editController.clear();
+      });
+    }
   }
 
   Future<dynamic> _showDuplicateDialog(String value) {
@@ -185,11 +206,35 @@ class _SearchState extends State<Search> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  void _showNoEmptySnackBar() {
+    // showing snackBar in bottom of screen
+    const snackBar = SnackBar(content: Text('Cannot change to null'));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   String? _validator(value) {
     // not allowing user to pass empty input
     if (value == null || value.isEmpty) {
       return 'Input is required !';
     }
     return null;
+  }
+
+  void _itemsToDropDown() {
+    // changing string list to dropdown item list
+    items = stringItems
+        .map(
+          (e) => DropdownMenuItem<String>(
+            value: e,
+            child: Text(e),
+          ),
+        )
+        .toList();
+  }
+
+  bool isSelected() {
+    if (value?.isNotEmpty ?? false) return true;
+    if (items.isEmpty) return false;
+    return false;
   }
 }

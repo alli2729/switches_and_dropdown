@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tamrin_app/pages/search.dart';
+import 'package:tamrin_app/pages/my_dropdown.dart';
 import 'pages/switches.dart';
 
 void main() => runApp(const MainApp());
@@ -12,7 +12,7 @@ class MainApp extends StatelessWidget {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
       // home: Switches(),
-      home: Search(),
+      home: MyDropDown(),
     );
   }
 }

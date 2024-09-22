@@ -10,7 +10,7 @@ class Switches extends StatefulWidget {
 
 class _SwitchesState extends State<Switches> {
   final List<MySwitch> _switches = [];
-  // int id = 0;
+  int id = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +27,8 @@ class _SwitchesState extends State<Switches> {
     );
   }
 
+  //* Widgets-----------------------------------------------------------------
+
   Widget _fab() {
     return FloatingActionButton(
       elevation: 0,
@@ -35,15 +37,19 @@ class _SwitchesState extends State<Switches> {
     );
   }
 
+  //* Methods-----------------------------------------------------------------
+
   void _addSwitch() {
-    setState(() {
-      _switches.add(MySwitch(onPressed: (id) => _removeSwitch(id)));
-    });
+    _switches.add(MySwitch(onPressed: (id) => _removeSwitch(id), id: ++id));
+    setState(() {});
   }
 
   void _removeSwitch(int id) {
-    setState(() {
-      _switches.removeWhere((item) => item.id == id);
-    });
+    // removing with index
+    int index = (_switches.indexWhere((item) => item.id == id));
+    _switches.removeAt(index);
+    // removing with id
+    _switches.removeWhere((item) => item.id == id);
+    setState(() {});
   }
 }

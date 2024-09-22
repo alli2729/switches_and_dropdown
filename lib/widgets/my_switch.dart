@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
 class MySwitch extends StatefulWidget {
-  MySwitch({
+  const MySwitch({
     super.key,
-    // required this.id,
+    required this.id,
     required this.onPressed,
-  }) : id = ++sid;
+  });
 
-  static int sid = 0;
   final int id;
   final void Function(int) onPressed;
 
@@ -44,7 +43,7 @@ class _MySwitchState extends State<MySwitch> {
     return Row(
       children: [
         _removeButton(),
-        _editButton(),
+        (!isEdit) ? _editButton() : _doneButton(),
         _switch(),
       ],
     );
@@ -62,9 +61,11 @@ class _MySwitchState extends State<MySwitch> {
   }
 
   Widget _editButton() {
-    return IconButton(
-        onPressed: (_editSwitch),
-        icon: (isEdit) ? const Icon(Icons.done) : const Icon(Icons.edit));
+    return IconButton(onPressed: (_editSwitch), icon: const Icon(Icons.edit));
+  }
+
+  Widget _doneButton() {
+    return IconButton(onPressed: (_doneEdit), icon: const Icon(Icons.done));
   }
 
   Widget _switch() {
@@ -77,6 +78,13 @@ class _MySwitchState extends State<MySwitch> {
   //* Methods------------------------------------------------------------------
 
   _editSwitch() {
+    setState(() {
+      isEdit = !isEdit;
+      _controller.text = name;
+    });
+  }
+
+  _doneEdit() {
     setState(() {
       name = _controller.text;
       isEdit = !isEdit;

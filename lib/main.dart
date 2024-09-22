@@ -11,8 +11,8 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      // home: Switches(),
-      home: MyDropDown(),
+      home: Switches(),
+      // home: MyDropDown(),
     );
   }
 }

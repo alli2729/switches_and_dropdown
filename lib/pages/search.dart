@@ -9,14 +9,17 @@ class Search extends StatefulWidget {
 
 class _SearchState extends State<Search> {
   // create an empty list for dropdown items
-  var items = []
-      .map(
-        (val) => DropdownMenuItem<String>(value: val, child: Text(val)),
-      )
-      .toList();
+  // var items = []
+  //     .map(
+  //       (val) => DropdownMenuItem<String>(value: val, child: Text(val)),
+  //     )
+  //     .toList();
+
+  List<DropdownMenuItem<String>> items = [];
 
   // create controller fo textfield and key for form
-  final _controller = TextEditingController();
+  final _addController = TextEditingController();
+  final _editController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   // value is for DropDownMenu
   String? value;
@@ -36,7 +39,9 @@ class _SearchState extends State<Search> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _textField(),
+            _addTextField(),
+            const SizedBox(height: 10),
+            _editTextField(),
             _buttons(),
             _dropDown(),
           ],
@@ -47,13 +52,25 @@ class _SearchState extends State<Search> {
 
   //* WIDGETS------------------------------------------
 
-  Widget _textField() {
+  Widget _addTextField() {
     return TextFormField(
       validator: _validator,
-      controller: _controller,
+      controller: _addController,
       decoration: const InputDecoration(
         hintText: 'Type Somthing',
         label: Text('Input'),
+        border: OutlineInputBorder(),
+      ),
+    );
+  }
+
+  Widget _editTextField() {
+    return TextFormField(
+      // validator: _validator,
+      controller: _editController,
+      decoration: const InputDecoration(
+        hintText: 'Type Somthing',
+        label: Text('Edit'),
         border: OutlineInputBorder(),
       ),
     );
@@ -64,22 +81,30 @@ class _SearchState extends State<Search> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-            onPressed: () => _addToList(_controller.text),
+            onPressed: () => _addToList(_addController.text),
             icon: const Icon(Icons.add_circle_outline)),
         IconButton(
-            onPressed: () => _removeFromList(_controller.text),
+            onPressed: () => _removeFromList(_addController.text),
             icon: const Icon(Icons.remove_circle_outline)),
+        IconButton(
+            onPressed: () => _editList(value!),
+            icon: const Icon(Icons.edit_outlined)),
       ],
     );
   }
 
   Widget _dropDown() {
     return DropdownButton<String>(
-        hint:
-            (items.isEmpty) ? const Text('Its Empty !') : const Text('Select'),
-        value: value,
-        items: items,
-        onChanged: (v) => setState(() => value = v));
+      hint: (items.isEmpty) ? const Text('Its Empty !') : const Text('Select'),
+      value: value,
+      items: items,
+      onChanged: (v) => setState(
+        () {
+          _editController.text = v!;
+          value = v;
+        },
+      ),
+    );
   }
 
   //* METHODS------------------------------------------
@@ -97,7 +122,7 @@ class _SearchState extends State<Search> {
           // add input to list
           items.add(DropdownMenuItem(value: input, child: Text(input)));
           // clear the text field
-          _controller.clear();
+          _addController.clear();
         });
       }
     }
@@ -111,13 +136,23 @@ class _SearchState extends State<Search> {
         // remove item from list
         setState(() {
           items.removeWhere((item) => item.value == input);
-          _controller.clear();
+          _addController.clear();
         });
       } else {
         // say there is no match for 'input'
         _showNoMatchSnackBar(input);
       }
     }
+  }
+
+  void _editList(String value) {
+    // edit selected item from list
+    setState(() {
+      int index = items.indexWhere((item) => item.value == value);
+      items[index] = DropdownMenuItem(
+          value: _editController.text, child: Text(_editController.text));
+      _editController.clear();
+    });
   }
 
   Future<dynamic> _showDuplicateDialog(String value) {

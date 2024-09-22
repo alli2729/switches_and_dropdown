@@ -16,23 +16,37 @@ class MySwitch extends StatefulWidget {
 
 class _MySwitchState extends State<MySwitch> {
   bool switchValue = false;
+  bool isEdit = false;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text('Switch ${widget.id}'),
+        _fieldOrText(),
         const Spacer(),
         _removeButton(),
+        _editButton(),
         _switch(),
       ],
     );
+  }
+
+  Widget _fieldOrText() {
+    if (isEdit) return const Expanded(child: TextField());
+
+    return Text('Switch ${widget.id}');
   }
 
   Widget _removeButton() {
     return IconButton(
         onPressed: (switchValue) ? (() => widget.onPressed(widget.id)) : null,
         icon: const Icon(Icons.delete_forever));
+  }
+
+  Widget _editButton() {
+    return IconButton(
+        onPressed: (() => setState(() => isEdit = !isEdit)),
+        icon: (isEdit) ? const Icon(Icons.cancel) : const Icon(Icons.edit));
   }
 
   Widget _switch() {

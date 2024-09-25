@@ -40,7 +40,7 @@ class _SwitchesState extends State<Switches> {
   //* Methods-----------------------------------------------------------------
 
   void _addSwitch() {
-    _switches.add(MySwitch(onPressed: (id) => _removeSwitch(id), id: ++id));
+    _switches.add(MySwitch(onPressed: (id) => _removeSwitch(id), id: ++id,));
     setState(() {});
   }
 
@@ -49,7 +49,7 @@ class _SwitchesState extends State<Switches> {
     int index = (_switches.indexWhere((item) => item.id == id));
     _switches.removeAt(index);
     // removing with id
-    _switches.removeWhere((item) => item.id == id);
+    // _switches.removeWhere((item) => item.id == id);
     setState(() {});
   }
 }

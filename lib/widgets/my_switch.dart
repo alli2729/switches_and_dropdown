@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 class MySwitch extends StatefulWidget {
-  const MySwitch({
+  MySwitch({
     super.key,
     required this.id,
     required this.onPressed,
-  });
+  }) : name = id.toString();
 
   final int id;
+  final String name;
   final void Function(int) onPressed;
 
   @override
@@ -18,11 +19,11 @@ class _MySwitchState extends State<MySwitch> {
   final _controller = TextEditingController();
   bool switchValue = false;
   bool isEdit = false;
-  String name = '';
+  String _name = '';
 
   @override
   void initState() {
-    name = 'Switch ${widget.id}';
+    _name = widget.name;
     super.initState();
   }
 
@@ -51,7 +52,7 @@ class _MySwitchState extends State<MySwitch> {
 
   Widget _fieldOrText() {
     if (isEdit) return Expanded(child: TextField(controller: _controller));
-    return Text(name);
+    return Text('Switch $_name');
   }
 
   Widget _removeButton() {
@@ -80,13 +81,13 @@ class _MySwitchState extends State<MySwitch> {
   _editSwitch() {
     setState(() {
       isEdit = !isEdit;
-      _controller.text = name;
+      _controller.text = _name;
     });
   }
 
   _doneEdit() {
     setState(() {
-      name = _controller.text;
+      _name = _controller.text;
       isEdit = !isEdit;
     });
   }
